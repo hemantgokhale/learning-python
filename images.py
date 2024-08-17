@@ -15,6 +15,9 @@ class Image:
     def is_unused(self) -> bool:
         return not self.occurrences
 
+    def __str__(self):
+        return f"{self.path}, {self.disk_usage / 1000:.2f} kB, {str(self.occurrences[0]) if self.occurrences else None}"
+
 
 def include_dir_in_search(entry: str) -> bool:
     return entry not in ["Pods", "Images.xcassets"] and not entry.startswith(".") and not entry.endswith(".framework")
@@ -30,18 +33,7 @@ def include_file_in_search(local_path: Path) -> bool:
 def print_unusual_locations(local_images: List[Image]):
     for local_image in local_images:
         if local_image.occurrences and local_image.occurrences[0].suffix not in [".swift", ".m", ".xib", ".storyboard"]:
-            print(f"{local_image.path}, {local_image.occurrences[0]}")
-
-
-def print_all_images(local_images: List[Image]):
-    for local_image in local_images:
-        print(f"{local_image.path}, {str(local_image.occurrences[0]) if local_image.occurrences else None}")
-
-
-def print_unused_images(local_images: List[Image]):
-    for local_image in local_images:
-        if local_image.is_unused:
-            print(f"{local_image.path}, {str(local_image.occurrences[0]) if local_image.occurrences else None}")
+            print(local_image)
 
 
 start_time = time.time()
@@ -65,10 +57,9 @@ for root, dirs, files in project_root.walk():
 
 # Identify unused images and sort them for printing
 unused_images = [i for i in images if i.is_unused]
-print(
-    f"Total images: {len(images)}, unused: {len(unused_images)}, occupying {sum(i.disk_usage for i in unused_images):,} bytes on disk.")
-
-print_unusual_locations(images)
-
+print(f"Total images: {len(images)}, "
+      f"unused: {len(unused_images)}, "
+      f"occupying {sum(i.disk_usage for i in unused_images):,} bytes on disk.")
+print_unusual_locations(unused_images)
 end_time = time.time()
 print(f"Time taken: {end_time - start_time} seconds")
