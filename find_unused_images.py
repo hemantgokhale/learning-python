@@ -24,10 +24,7 @@ def include_dir_in_search(entry: str) -> bool:
 
 
 def include_file_in_search(local_path: Path) -> bool:
-    return (local_path.is_file()
-            and not local_path.name.startswith(".")
-            and local_path.suffix not in [".plist", ".md", ".lock", ".pbxproj", ".js"]
-            and local_path.name not in ["Podfile"])
+    return local_path.is_file() and not local_path.name.startswith(".")
 
 
 def print_unusual_locations(local_images: List[Image]):
@@ -55,11 +52,11 @@ for root, dirs, files in project_root.walk():
             except UnicodeDecodeError:
                 continue  # Skip non-text files
 
-# Identify unused images and sort them for printing
+# Identify unused images
 unused_images = [i for i in images if i.is_unused]
 print(f"Total images: {len(images)}, "
       f"unused: {len(unused_images)}, "
       f"occupying {sum(i.disk_usage for i in unused_images):,} bytes on disk.")
-print_unusual_locations(unused_images)
+print_unusual_locations(images)
 end_time = time.time()
 print(f"Time taken: {end_time - start_time} seconds")
